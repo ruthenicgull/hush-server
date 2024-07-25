@@ -180,7 +180,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 
   const decodedToken = jwt.verify(
     incomingRefreshToken,
-    process.REFRESH_TOKEN_SECRET
+    process.env.REFRESH_TOKEN_SECRET
   );
 
   const user = await User.findById(decodedToken?._id);
