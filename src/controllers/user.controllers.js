@@ -140,7 +140,7 @@ const loginUser = asyncHandler(async (req, res) => {
 
 const logoutUser = asyncHandler(async (req, res) => {
   // get user id from the user in the request object (attached by the auth middleware)
-  user_id = req.user._id;
+  const user_id = req.user._id;
 
   // remove refresh token from db (i.e. make it undefined)
   await User.findByIdAndUpdate(
