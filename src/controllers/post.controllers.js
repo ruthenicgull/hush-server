@@ -72,4 +72,48 @@ const deletePost = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, {}, "Post deleted successfully"));
 });
 
+const getUserFeed = asyncHandler(async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
+
+  try {
+    const feedPosts = await Post.find().skip(skip).limit(limit);
+    const totalPosts = await Post.countDocuments();
+
+    res.status(200).json(
+      new ApiResponse(
+        200,
+        {
+          feedPosts,
+          pagination: {
+            currentPage: page,
+            totalPages: Math.ceil(totalPosts / limit),
+            totalPosts: totalPosts,
+            hasNextPage: page * limit < totalPosts,
+            hasPreviousPage: page > 1,
+          },
+        },
+        "Posts fetched successfully"
+      )
+    );
+  } catch (error) {
+    throw new ApiError(500, "Couldn't get posts");
+  }
+});
+
+const getPostsByUser = asyncHandler(async (req, res) => {
+  const user_id = req.user._id;
+
+  const posts = await Post.find({ owner: user_id });
+
+  if (!posts) {
+    throw new ApiError(404, "User not found");
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, posts, "Posts fetched successfully"));
+});
+
 export { createPost, getPost, updatePost, deletePost };
