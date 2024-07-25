@@ -243,6 +243,16 @@ const getCurrentUser = asyncHandler(async (req, res) => {
     );
 });
 
+const getUserPosts = asyncHandler(async (req, res) => {
+  const posts = await Post.find({ college: req.user.college })
+    .populate("owner", "username")
+    .sort({ createdAt: -1 });
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, posts, "Posts fetched successfully"));
+});
+
 export {
   registerUser,
   loginUser,
