@@ -91,7 +91,7 @@ const loginUser = asyncHandler(async (req, res) => {
 
   // find user in db
   const user = await User.findOne({
-    $or: [{ username, email }],
+    $or: [{ username }, { email }],
   });
 
   if (!user) {
@@ -238,7 +238,9 @@ const getCurrentUser = asyncHandler(async (req, res) => {
   const currentUser = req.user;
   return res
     .status(200)
-    .ApiResponse(200, currentUser, "Current User Fetched Successfully");
+    .json(
+      new ApiResponse(200, currentUser, "Current User Fetched Successfully")
+    );
 });
 
 export {
