@@ -57,7 +57,9 @@ const updatePost = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Post not found");
   }
 
-  return res.status(200).json(new ApiResponse());
+  return res
+    .status(200)
+    .json(new ApiResponse(200, post, "Post updated successfully"));
 });
 
 const deletePost = asyncHandler(async (req, res) => {
@@ -103,7 +105,7 @@ const getUserFeed = asyncHandler(async (req, res) => {
 });
 
 const getPostsByUser = asyncHandler(async (req, res) => {
-  const user_id = req.user._id;
+  const user_id = req.params.user_id;
 
   const posts = await Post.find({ owner: user_id });
 
@@ -113,7 +115,14 @@ const getPostsByUser = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .json(new ApiResponse(200, posts, "Posts fetched successfully"));
+    .json(new ApiResponse(200, { posts }, "Posts fetched successfully"));
 });
 
-export { createPost, getPost, updatePost, deletePost };
+export {
+  createPost,
+  getPost,
+  updatePost,
+  deletePost,
+  getUserFeed,
+  getPostsByUser,
+};

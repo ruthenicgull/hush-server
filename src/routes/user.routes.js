@@ -23,5 +23,4 @@ router.route("/change-password").post(verifyJWT, changeCurrentPassword);
 
 // Profile Management
 router.route("/profile").get(verifyJWT, getCurrentUser);
-
 export default router;
