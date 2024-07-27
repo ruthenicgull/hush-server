@@ -2,9 +2,10 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { Comment } from "../models/comment.models.js";
+import { Post } from "../models/post.models.js";
 
 const createComment = asyncHandler(async (req, res) => {
-  const { content } = req.body;
+  let { content } = req.body;
   const userId = req.user._id;
   const postId = req.params.post_id;
 
@@ -63,12 +64,22 @@ const getCommentById = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Comment not found");
   }
 
-  return res.status(200).ApiResponse(200, comment, "Comment fetched");
+  return res.status(200).json(new ApiResponse(200, comment, "Comment fetched"));
 });
 
 const updateComment = asyncHandler(async (req, res) => {
   const commentId = req.params.id;
-  const { content } = req.body;
+  let { content } = req.body;
+
+  // Ensure the content of the comment is not empty
+  if (!content) {
+    throw new ApiError(400, "Comment content is required");
+  }
+
+  content = content.trim();
+  if (!content.length) {
+    throw new ApiError(400, "Comment content cannot be empty");
+  }
 
   const comment = await Comment.findByIdAndUpdate(
     commentId,
