@@ -1,6 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 
-const likeSchema = new Schema(
+const voteSchema = new Schema(
   {
     owner: {
       type: Schema.Types.ObjectId,
@@ -21,4 +21,4 @@ const likeSchema = new Schema(
   }
 );
 
-export const Like = mongoose.model("Like", likeSchema);
+export const Vote = mongoose.model("Vote", voteSchema);
