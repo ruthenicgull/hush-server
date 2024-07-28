@@ -29,4 +29,6 @@ const collegeSchema = new Schema(
   }
 );
 
+collegeSchema.index({ name: "text", description: "text" });
+
 export const College = mongoose.model("College", collegeSchema);
