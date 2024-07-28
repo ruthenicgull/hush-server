@@ -1,4 +1,5 @@
 import mongoose, { Schema } from "mongoose";
+import aggregatePaginate from "mongoose-aggregate-paginate-v2";
 
 const postSchema = new Schema(
   {
@@ -28,5 +29,11 @@ const postSchema = new Schema(
     timestamps: true,
   }
 );
+
+// Add the pagination plugin to the schema
+postSchema.plugin(aggregatePaginate);
+
+// Create a text index on the title and content fields
+postSchema.index({ title: "text", content: "text" });
 
 export const Post = mongoose.model("Post", postSchema);

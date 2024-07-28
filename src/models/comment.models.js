@@ -16,6 +16,10 @@ const commentSchema = new Schema(
       ref: "Post",
       required: true,
     },
+    votes: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true,
