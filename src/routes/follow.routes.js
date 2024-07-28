@@ -4,8 +4,8 @@ import {
   unfollowCollege,
   getUserFollows,
   getCollegeFollowers,
-} from "../controllers/followController";
-import verifyJWT from "../middleware/verifyJWT";
+} from "../controllers/follow.controllers.js";
+import { verifyJWT } from "../middlewares/auth.middleware.js";
 
 const router = express.Router();
 

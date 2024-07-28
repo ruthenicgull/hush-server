@@ -1,8 +1,8 @@
-import asyncHandler from "../utils/asyncHandler.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 import { Follow } from "../models/follow.models.js";
 import { College } from "../models/college.models.js";
-import ApiError from "../utils/ApiError.js";
-import ApiResponse from "../utils/ApiResponse";
+import { ApiError } from "../utils/ApiError.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
 
 // Follow a college
 export const followCollege = asyncHandler(async (req, res) => {

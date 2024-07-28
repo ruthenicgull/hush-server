@@ -29,6 +29,7 @@ const collegeSchema = new Schema(
   }
 );
 
-collegeSchema.index({ name: "text", description: "text" });
+// Create a text index on the name field
+collegeSchema.index({ name: "text" });
 
 export const College = mongoose.model("College", collegeSchema);
