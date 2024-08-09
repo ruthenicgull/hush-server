@@ -1,5 +1,5 @@
 {
-  "name": "tubex",
+  "name": "hush",
   "version": "1.0.0",
   "description": "a project which is a combination of YouTube and Twitter",
   "type": "module",
@@ -14,7 +14,7 @@
     "express",
     "mongoose",
     "backend",
-    "tubex"
+    "hush"
   ],
   "author": "Muhammed Hisham",
   "license": "ISC",

@@ -80,7 +80,11 @@ const getUserFeed = asyncHandler(async (req, res) => {
   const skip = (page - 1) * limit;
 
   try {
-    const feedPosts = await Post.find().skip(skip).limit(limit);
+    const feedPosts = await Post.find()
+      .populate("college", "name") // Populate college name
+      .populate("owner", "username") // Populate owner username
+      .skip(skip)
+      .limit(limit);
     const totalPosts = await Post.countDocuments();
 
     res.status(200).json(
