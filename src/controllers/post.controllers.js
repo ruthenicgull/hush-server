@@ -30,7 +30,9 @@ const createPost = asyncHandler(async (req, res) => {
 });
 
 const getPost = asyncHandler(async (req, res) => {
-  const post = await Post.findById(req.params.id);
+  const post = await Post.findById(req.params.id)
+    .populate("owner", "username")
+    .populate("college", "name");
 
   if (!post) {
     throw new ApiError(404, "Post not found");
