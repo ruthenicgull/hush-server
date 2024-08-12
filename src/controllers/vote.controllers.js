@@ -133,7 +133,7 @@ const getVotesForPost = asyncHandler(async (req, res) => {
     .populate("owner", "username") // Adjust to include relevant user fields
     .populate("post", "title"); // Adjust to include relevant post fields
 
-  if (!votes.length) {
+  if (!votes) {
     throw new ApiError(404, "No votes found for this post");
   }
 
