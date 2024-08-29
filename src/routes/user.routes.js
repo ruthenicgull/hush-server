@@ -6,6 +6,7 @@ import {
   logoutUser,
   refreshAccessToken,
   registerUser,
+  verifyEmail,
 } from "../controllers/user.controllers.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import { verifyCollegeEmail } from "../middlewares/domain.middleware.js";
@@ -24,3 +25,6 @@ router.route("/change-password").post(verifyJWT, changeCurrentPassword);
 // Profile Management
 router.route("/profile").get(verifyJWT, getCurrentUser);
 export default router;
+
+// Email Verification
+router.route("/verify-email").get(verifyEmail); // New route for email verification

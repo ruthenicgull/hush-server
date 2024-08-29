@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import ErrorHandler from "./utils/ErrorHandler.js";
 
 const app = express();
 
@@ -29,5 +30,8 @@ app.use("/api/v1/comments", commentRouter);
 app.use("/api/v1/vote", voteRouter);
 app.use("/api/v1/follow", followRouter);
 app.use("/api/v1/search", searchRouter);
+
+// Error handler
+app.use(ErrorHandler);
 
 export { app };

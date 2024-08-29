@@ -21,10 +21,16 @@ const userSchema = new Schema(
     refreshToken: {
       type: String,
     },
+    isVerified: {
+      type: Boolean,
+      default: false, // Default to false, needs to be set to true after email verification
+    },
     college: {
       type: Schema.Types.ObjectId,
       ref: "College",
     },
+    verificationToken: String,
+    verificationTokenExpiresAt: Date,
   },
   {
     timestamps: true,
@@ -49,7 +55,6 @@ userSchema.methods.generateAccessToken = async function () {
       _id: this._id,
       email: this.email,
       username: this.username,
-      fullName: this.fullName,
     },
     process.env.ACCESS_TOKEN_SECRET,
     {

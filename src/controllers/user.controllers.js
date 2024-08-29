@@ -1,9 +1,12 @@
+import dotenv from "dotenv";
+dotenv.config();
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { ApiError } from "../utils/ApiError.js";
 import { User } from "../models/user.models.js";
 import { generateUsername } from "unique-username-generator";
 import jwt from "jsonwebtoken";
+import { sendVerificationEmail } from "../utils/emailer.js";
 
 const generateUniqueUsername = async () => {
   const username = generateUsername();
@@ -34,6 +37,30 @@ const generateAccessAndRefreshTokens = async (userId) => {
   }
 };
 
+export const verifyEmail = asyncHandler(async (req, res) => {
+  const { code } = req.query;
+
+  if (!code) {
+    throw new ApiError(400, "Verification code is required");
+  }
+
+  const user = await User.findOne({
+    verificationToken: code,
+    // verificationTokenExpiresAt: { $gt: Date.now() },
+  });
+
+  if (!user) {
+    throw new ApiError(400, "Invalid or expired verification code");
+  }
+
+  user.ifVerified = true;
+  user.verificationToken = undefined;
+  user.verificationTokenExpiresAt = undefined;
+  await user.save();
+
+  return res.status(200).json(new ApiResponse(200, {}, "User verified"));
+});
+
 const registerUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
   const college = req.college;
@@ -46,26 +73,34 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Password is required");
   }
 
-  // check if user already exists
+  // Check if user already exists
   const userExists = await User.findOne({ email: email });
 
   if (userExists) {
     throw new ApiError(400, "User with this email already exists");
   }
 
-  // create unique username
-  const username = await generateUniqueUsername();
+  // Create unique username
+  const username = await generateUsername();
 
-  // generate
+  // create verification code
+  const verificationCode = Math.floor(
+    100000 + Math.random() * 900000
+  ).toString();
+
+  // Create user
   const user = await User.create({
     email,
     password,
     username,
     college: college._id,
+    verificationToken: verificationCode,
   });
 
-  // check for user creation &
-  // remove password and refresh token field from response
+  // Send verification email
+  await sendVerificationEmail(user.email, verificationCode);
+
+  // Check for user creation and remove password and refresh token fields from response
   const createdUser = await User.findById(user._id).select(
     "-password -refreshToken"
   );
@@ -74,10 +109,16 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(500, "Failed to create user");
   }
 
-  // return response
+  // Return response
   return res
     .status(201)
-    .json(new ApiResponse(201, createdUser, "User registered successfully!"));
+    .json(
+      new ApiResponse(
+        201,
+        createdUser,
+        "User registered successfully! Please check your email to verify your account."
+      )
+    );
 });
 
 const loginUser = asyncHandler(async (req, res) => {
