@@ -37,7 +37,7 @@ const generateAccessAndRefreshTokens = async (userId) => {
   }
 };
 
-export const verifyEmail = asyncHandler(async (req, res) => {
+const verifyEmail = asyncHandler(async (req, res) => {
   const { code } = req.query;
 
   if (!code) {
@@ -53,7 +53,7 @@ export const verifyEmail = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Invalid or expired verification code");
   }
 
-  user.ifVerified = true;
+  user.isVerified = true;
   user.verificationToken = undefined;
   user.verificationTokenExpiresAt = undefined;
   await user.save();
@@ -77,16 +77,48 @@ const registerUser = asyncHandler(async (req, res) => {
   const userExists = await User.findOne({ email: email });
 
   if (userExists) {
-    throw new ApiError(400, "User with this email already exists");
+    // If user exists but is not verified
+    if (!userExists.isVerified) {
+      // Create a new verification code
+      const verificationCode = Math.floor(
+        100000 + Math.random() * 900000
+      ).toString();
+
+      // Send verification email
+      await sendVerificationEmail(userExists.email, verificationCode);
+
+      // Update user with new verification code
+      userExists.verificationToken = verificationCode;
+      await userExists.save();
+
+      return res
+        .status(200)
+        .json(
+          new ApiResponse(
+            200,
+            null,
+            "User already registered but not verified. A new verification email has been sent."
+          )
+        );
+    }
+
+    // If user exists and is verified
+    throw new ApiError(
+      400,
+      "User with this email already exists and is verified."
+    );
   }
 
   // Create unique username
   const username = await generateUsername();
 
-  // create verification code
+  // Create verification code
   const verificationCode = Math.floor(
     100000 + Math.random() * 900000
   ).toString();
+
+  // Send verification email
+  await sendVerificationEmail(email, verificationCode);
 
   // Create user
   const user = await User.create({
@@ -96,9 +128,6 @@ const registerUser = asyncHandler(async (req, res) => {
     college: college._id,
     verificationToken: verificationCode,
   });
-
-  // Send verification email
-  await sendVerificationEmail(user.email, verificationCode);
 
   // Check for user creation and remove password and refresh token fields from response
   const createdUser = await User.findById(user._id).select(
@@ -295,4 +324,5 @@ export {
   refreshAccessToken,
   changeCurrentPassword,
   getCurrentUser,
+  verifyEmail,
 };
