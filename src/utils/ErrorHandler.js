@@ -1,4 +1,6 @@
-export default errorHandler = (err, req, res, next) => {
+import { ApiError } from "./ApiError.js";
+
+export default function errorHandler(err, req, res, next) {
   console.log(err);
   console.error(err.stack);
 
@@ -9,4 +11,4 @@ export default errorHandler = (err, req, res, next) => {
   }
 
   res.status(500).json({ message: "Something went wrong" });
-};
+}
