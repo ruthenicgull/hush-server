@@ -191,7 +191,9 @@ const loginUser = asyncHandler(async (req, res) => {
   // set cookie options
   const cookieOptions = {
     httpOnly: true,
-    secure: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
   };
 
   // return response
@@ -269,7 +271,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 
   const cookieOptions = {
     httpOnly: true,
-    secure: true,
+    // secure: true,
   };
 
   const { accessToken, newRefreshToken } = await generateAccessAndRefreshTokens(
@@ -283,7 +285,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
     .json(
       new ApiResponse(
         200,
-        { accessToken, refreshToken: newRefreshToken },
+        { user_id: user._id, accessToken, refreshToken: newRefreshToken },
         "Access Token Refreshed"
       )
     );
@@ -317,6 +319,21 @@ const getCurrentUser = asyncHandler(async (req, res) => {
     );
 });
 
+const getUserById = asyncHandler(async (req, res) => {
+  const userId = req.params.id;
+  const user = await User.findById(userId)
+    .select("-password -refreshToken")
+    .populate("college", "name");
+
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, user, "User Fetched Successfully"));
+});
+
 export {
   registerUser,
   loginUser,
@@ -325,4 +342,5 @@ export {
   changeCurrentPassword,
   getCurrentUser,
   verifyEmail,
+  getUserById,
 };

@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
   changeCurrentPassword,
   getCurrentUser,
+  getUserById,
   loginUser,
   logoutUser,
   refreshAccessToken,
@@ -22,8 +23,10 @@ router.route("/logout").post(verifyJWT, logoutUser);
 router.route("/refresh-access-token").post(refreshAccessToken);
 router.route("/change-password").post(verifyJWT, changeCurrentPassword);
 
-// Profile Management
+// Profile
 router.route("/profile").get(verifyJWT, getCurrentUser);
+router.route("/:id").get(getUserById);
+
 export default router;
 
 // Email Verification
