@@ -23,8 +23,8 @@ router.route("/logout").post(verifyJWT, logoutUser);
 router.route("/refresh-access-token").post(refreshAccessToken);
 router.route("/change-password").post(verifyJWT, changeCurrentPassword);
 
-// Profile
-router.route("/profile").get(verifyJWT, getCurrentUser);
+// Get User
+router.route("/current-user").get(verifyJWT, getCurrentUser);
 router.route("/:id").get(getUserById);
 
 export default router;
