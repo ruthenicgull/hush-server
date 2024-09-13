@@ -180,9 +180,8 @@ const loginUser = asyncHandler(async (req, res) => {
   }
 
   // generate and refresh and access token
-  const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(
-    user._id
-  );
+  const { accessToken, refreshToken: refreshToken } =
+    await generateAccessAndRefreshTokens(user._id);
 
   const loggedInUser = await User.findOne(user._id).select(
     "-password -refreshToken"
@@ -234,7 +233,7 @@ const logoutUser = asyncHandler(async (req, res) => {
   // set cookie options
   const cookieOptions = {
     httpOnly: true,
-    secure: true,
+    secure: process.env.NODE_ENV !== "production",
   };
 
   // return response
@@ -259,7 +258,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
     process.env.REFRESH_TOKEN_SECRET
   );
 
-  const user = await User.findById(decodedToken?._id);
+  const user = await User.findById(decodedToken?._id).select("-password");
 
   if (!user) {
     throw new ApiError(401, "Invalid Refresh Token");
@@ -274,21 +273,13 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
     // secure: true,
   };
 
-  const { accessToken, newRefreshToken } = await generateAccessAndRefreshTokens(
-    user._id
-  );
+  const tokens = await generateAccessAndRefreshTokens(user._id);
 
   return res
     .status(200)
-    .cookie("accessToken", accessToken, cookieOptions)
-    .cookie("refreshToken", newRefreshToken, cookieOptions)
-    .json(
-      new ApiResponse(
-        200,
-        { user_id: user._id, accessToken, refreshToken: newRefreshToken },
-        "Access Token Refreshed"
-      )
-    );
+    .cookie("accessToken", tokens.accessToken, cookieOptions)
+    .cookie("refreshToken", tokens.refreshToken, cookieOptions)
+    .json(new ApiResponse(200, { user, ...tokens }, "Access Token Refreshed"));
 });
 
 const changeCurrentPassword = asyncHandler(async (req, res) => {
